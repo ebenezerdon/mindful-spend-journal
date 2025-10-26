@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="en" class="h-full">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Mindful Spending Journal • App</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="styles/main.css">
+  <style type="text/tailwindcss" data-teda="tailwind-apply">
+    @layer components {
+      .btn-primary { @apply whitespace-nowrap bg-orange-500 text-white rounded-full px-5 py-2 text-sm font-semibold shadow hover:bg-orange-600 focus:outline-none focus:ring-2 focus:ring-orange-300 active:scale-[.98] transition; }
+      .btn-secondary { @apply whitespace-nowrap bg-white border border-slate-200 text-slate-800 rounded-full px-4 py-2 text-sm font-semibold hover:bg-slate-50 focus:outline-none focus:ring-2 focus:ring-slate-200; }
+      .btn-ghost { @apply whitespace-nowrap text-slate-600 hover:text-slate-900 hover:bg-slate-100 rounded-full px-4 py-2 text-sm; }
+      .chip { @apply inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-medium border border-slate-200 bg-white; }
+      .input { @apply w-full rounded-lg border border-slate-200 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-orange-200; }
+      .card { @apply bg-white/90 backdrop-blur rounded-2xl border border-slate-100 shadow-sm; }
+      .section-title { @apply text-slate-900 font-semibold text-lg tracking-tight; }
+      .nav-tab { @apply px-4 py-2 rounded-full text-sm font-semibold text-slate-600 hover:text-slate-900 hover:bg-slate-100; }
+      .nav-tab-active { @apply bg-slate-900 text-white; }
+      .kpi { @apply text-2xl font-semibold text-slate-900; }
+    }
+  </style>
+</head>
+<body class="min-h-full bg-sand text-slate-800">
+  <header class="bg-white/80 backdrop-blur border-b border-slate-200 sticky top-0 z-40">
+    <div class="mx-auto max-w-7xl px-4 sm:px-6 py-3 flex items-center justify-between">
+      <div class="flex items-center gap-3">
+        <a href="index.html" class="inline-flex h-9 w-9 items-center justify-center rounded-xl bg-slate-900 text-white font-bold" aria-label="Back to landing">MS</a>
+        <div class="hidden sm:block">
+          <div class="text-sm text-slate-500">Mindful Spending</div>
+          <div class="text-slate-900 font-semibold -mt-0.5">Journal</div>
+        </div>
+      </div>
+      <div class="flex items-center gap-2" role="tablist" aria-label="Primary">
+        <button class="nav-tab nav-tab-active" data-tab="journal" role="tab" aria-selected="true">Journal</button>
+        <button class="nav-tab" data-tab="budgets" role="tab" aria-selected="false">Budgets</button>
+        <button class="nav-tab" data-tab="retro" role="tab" aria-selected="false">Retro</button>
+      </div>
+      <div class="flex items-center gap-2">
+        <button id="prevMonth" class="btn-ghost" aria-label="Previous month">Prev</button>
+        <div id="monthLabel" class="chip bg-slate-900 text-white"></div>
+        <button id="nextMonth" class="btn-ghost" aria-label="Next month">Next</button>
+      </div>
+    </div>
+  </header>
+
+  <main class="mx-auto max-w-7xl px-4 sm:px-6 py-6 space-y-6">
+    <!-- Journal Tab -->
+    <section id="tab-journal" class="space-y-6">
+      <div class="grid gap-6 lg:grid-cols-[1.1fr_1.4fr]">
+        <!-- Add entry form -->
+        <div class="card p-5">
+          <h2 class="section-title">New entry</h2>
+          <form id="entryForm" class="mt-4 space-y-4" autocomplete="off">
+            <div class="grid gap-3 sm:grid-cols-2">
+              <div>
+                <label class="text-sm text-slate-600">Amount</label>
+                <input type="number" step="0.01" min="0" id="amountInput" class="input" placeholder="e.g. 18.50" required>
+              </div>
+              <div>
+                <label class="text-sm text-slate-600">Date</label>
+                <input type="date" id="dateInput" class="input" required>
+              </div>
+            </div>
+            <div class="grid gap-3 sm:grid-cols-2">
+              <div>
+                <label class="text-sm text-slate-600">Merchant</label>
+                <input type="text" id="merchantInput" class="input" placeholder="Where did you spend?" maxlength="60">
+              </div>
+              <div>
+                <label class="text-sm text-slate-600">Category</label>
+                <select id="categorySelect" class="input"></select>
+              </div>
+            </div>
+            <div>
+              <label class="text-sm text-slate-600">Values tags</label>
+              <div id="tagsContainer" class="mt-2 flex flex-wrap gap-2"></div>
+              <div class="mt-2 flex items-center gap-2">
+                <input id="customTagInput" class="input" placeholder="Add a custom tag...">
+                <button type="button" id="addTagBtn" class="btn-secondary">Add</button>
+              </div>
+            </div>
+            <div>
+              <label class="text-sm text-slate-600">Reflection</label>
+              <textarea id="reflectionInput" rows="3" class="input" placeholder="What did this purchase give you?"></textarea>
+            </div>
+            <div id="budgetHint" class="text-sm text-slate-600"></div>
+            <div class="flex items-center justify-between">
+              <div id="formFeedback" class="text-sm"></div>
+              <button type="submit" class="btn-primary">Save entry</button>
+            </div>
+          </form>
+        </div>
+
+        <!-- This month -->
+        <div class="space-y-6">
+          <div class="card p-5">
+            <h2 class="section-title">This month</h2>
+            <div id="monthSummary" class="mt-4 grid gap-4 sm:grid-cols-3">
+              <!-- KPIs injected here -->
+            </div>
+          </div>
+
+          <div class="card p-5">
+            <div class="flex items-center justify-between gap-3">
+              <h2 class="section-title">Entries</h2>
+              <div class="flex items-center gap-2">
+                <select id="filterCategory" class="input w-auto text-sm"></select>
+                <input id="searchInput" class="input w-44 sm:w-64" placeholder="Search notes or merchant">
+              </div>
+            </div>
+            <div id="entriesList" class="mt-4 space-y-3">
+              <!-- Entries injected here -->
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Budgets Tab -->
+    <section id="tab-budgets" class="hidden space-y-6">
+      <div class="grid gap-6 lg:grid-cols-[1.1fr_1.4fr]">
+        <div class="card p-5">
+          <h2 class="section-title">Add category</h2>
+          <form id="categoryForm" class="mt-4 grid gap-3 sm:grid-cols-2">
+            <input id="catNameInput" class="input" placeholder="Category name" required>
+            <input id="catCapInput" type="number" min="0" step="0.01" class="input" placeholder="Monthly cap (e.g. 150)">
+            <button type="submit" class="btn-primary sm:col-span-2 w-max">Add</button>
+          </form>
+        </div>
+        <div class="card p-5">
+          <h2 class="section-title">Caps & progress</h2>
+          <div id="budgetsList" class="mt-4 space-y-4"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Retro Tab -->
+    <section id="tab-retro" class="hidden space-y-6">
+      <div class="grid gap-6 lg:grid-cols-[1.1fr_1.4fr]">
+        <div class="card p-5">
+          <h2 class="section-title">Monthly summary</h2>
+          <div id="retroKPIs" class="mt-4 grid gap-4 sm:grid-cols-3"></div>
+          <div class="mt-6">
+            <h3 class="text-sm font-semibold text-slate-700">Top merchants</h3>
+            <div id="topMerchants" class="mt-2 flex flex-wrap gap-2"></div>
+          </div>
+          <div class="mt-6">
+            <h3 class="text-sm font-semibold text-slate-700">Tag pulse</h3>
+            <div id="tagPulse" class="mt-2 flex flex-wrap gap-2"></div>
+          </div>
+        </div>
+        <div class="card p-5">
+          <div class="flex items-center justify-between">
+            <h2 class="section-title">Close the month</h2>
+            <div class="flex items-center gap-2">
+              <button id="exportBtn" class="btn-secondary">Export</button>
+              <label class="btn-ghost cursor-pointer">
+                <input type="file" id="importInput" class="sr-only" accept="application/json">Import
+              </label>
+            </div>
+          </div>
+          <div class="mt-3">
+            <label class="text-sm text-slate-600">Reflection notes</label>
+            <textarea id="monthlyNotes" rows="7" class="input" placeholder="What patterns did you notice? What would you like to try next month?"></textarea>
+            <div id="notesFeedback" class="mt-2 text-sm text-slate-600"></div>
+          </div>
+          <div class="mt-6">
+            <h3 class="text-sm font-semibold text-slate-700">Highlights</h3>
+            <div id="retroHighlights" class="mt-3 space-y-2"></div>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <div id="modalRoot"></div>
+
+  <footer class="mt-10 border-t border-slate-200 bg-white/70 backdrop-blur">
+    <div class="mx-auto max-w-7xl px-4 sm:px-6 py-8 text-sm text-slate-600 flex items-center justify-between">
+      <span>Built for mindful money habits.</span>
+      <a class="btn-ghost" href="index.html">Landing</a>
+    </div>
+  </footer>
+
+  <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+  <script src="scripts/helpers.js"></script>
+  <script src="scripts/ui.js"></script>
+  <script src="scripts/main.js"></script>
+</body>
+</html>

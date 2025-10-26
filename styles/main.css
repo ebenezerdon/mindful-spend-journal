@@ -1,0 +1,46 @@
+/* Global site styles without Tailwind directives. Colors chosen for warm, calm aesthetics. */
+:root {
+  --ink: #0f172a;      /* slate-900 */
+  --sand: #faf7f2;     /* warm sand background */
+  --accent: #f97316;   /* orange-500 */
+  --accent-600: #ea580c;
+  --sky: #06b6d4;      /* cyan-500 */
+}
+
+html, body { height: 100%; }
+body.bg-sand { background-color: var(--sand); }
+
+/***** Motion *****/
+* { scroll-behavior: smooth; }
+@media (prefers-reduced-motion: reduce) {
+  * { animation-duration: 0.001ms !important; animation-iteration-count: 1 !important; transition-duration: 0.001ms !important; scroll-behavior: auto !important; }
+}
+
+/***** Utilities *****/
+.card:hover { transform: translateY(-2px); }
+
+/***** Progress bars *****/
+.progress { height: 10px; border-radius: 999px; background: #eef2f7; overflow: hidden; }
+.progress > .bar { height: 100%; border-radius: inherit; background: var(--accent); transition: width .35s ease; }
+
+/***** Chips *****/
+.chip[data-variant="warning"] { color: #b45309; background: #fffbeb; border-color: #fde68a; }
+.chip[data-variant="danger"] { color: #991b1b; background: #fef2f2; border-color: #fecaca; }
+.chip[data-variant="good"] { color: #065f46; background: #ecfdf5; border-color: #a7f3d0; }
+
+/***** Modal *****/
+.modal-backdrop { position: fixed; inset: 0; background: rgba(15,23,42,.55); display: grid; place-items: center; padding: 1rem; z-index: 60; }
+.modal-card { background: #fff; border: 1px solid #e5e7eb; border-radius: 1rem; width: 100%; max-width: 640px; box-shadow: 0 10px 30px rgba(0,0,0,.12); }
+.modal-header { padding: 1rem 1.25rem; border-bottom: 1px solid #f1f5f9; display: flex; align-items: center; justify-content: space-between; }
+.modal-body { padding: 1rem 1.25rem; }
+.modal-footer { padding: 1rem 1.25rem; border-top: 1px solid #f1f5f9; display: flex; justify-content: flex-end; gap: .5rem; }
+
+/***** Entry card *****/
+.entry-card { transition: background-color .2s ease, box-shadow .2s ease; }
+.entry-card:hover { background: rgba(255,255,255,.9); box-shadow: 0 8px 18px rgba(15,23,42,.08); }
+
+/***** Buttons on small screens *****/
+button, .btn-primary, .btn-secondary, .btn-ghost { white-space: nowrap; }
+
+/***** Accessibility focus tweaks *****/
+:focus-visible { outline: 2px solid #93c5fd; outline-offset: 2px; }
